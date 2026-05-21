@@ -1,0 +1,67 @@
+ <!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>RFP Proposal Copilot</title>
+</head>
+
+<body style="font-family: Arial; max-width: 960px; margin: 24px;">
+  <h2>RFP Proposal Copilot (MVP)</h2>
+
+  <p style="color:#555;">
+    Paste RFP content or ask proposal questions.  
+    Keep the same Session ID to retain context.
+  </p>
+
+  <div style="margin-bottom: 12px;">
+    <label><b>Session ID:</b></label>
+    <input id="session" value="medha-session" style="padding:6px; width:220px;" />
+  </div>
+
+  <textarea id="msg" rows="10" style="width:100%; padding:10px;"
+    placeholder="Paste RFP text or ask your question..."></textarea>
+
+  <div style="margin-top:10px;">
+    <button onclick="send()" style="padding:10px 16px;">Ask Agent</button>
+    <span id="status" style="margin-left:12px; color:#666;"></span>
+  </div>
+
+  <hr style="margin:20px 0;" />
+
+  <h3>Agent Response</h3>
+  <pre id="out" style="white-space: pre-wrap; background:#f6f6f6; padding:12px; border-radius:8px;"></pre>
+
+  <script>
+    async function send() {
+      const message = document.getElementById("msg").value.trim();
+      const session_id = document.getElementById("session").value.trim() || "default";
+      const status = document.getElementById("status");
+      const out = document.getElementById("out");
+
+      if (!message) {
+        alert("Please enter a question or RFP text.");
+        return;
+      }
+
+      status.textContent = "Thinking...";
+      out.textContent = "";
+
+      try {
+        const resp = await fetch("http://127.0.0.1:8000/chat", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ message, session_id })
+        });
+
+        const data = await resp.json();
+        out.textContent = data.response || JSON.stringify(data, null, 2);
+      } catch (err) {
+        out.textContent = "Error: " + err;
+      } finally {
+        status.textContent = "";
+      }
+    }
+  </script>
+</body>
+</html>
+``
